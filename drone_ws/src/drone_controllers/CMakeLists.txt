@@ -11,10 +11,14 @@ find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(actuator_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(sensor_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -37,6 +41,9 @@ install(PROGRAMS
   ${PROJECT_NAME}/mellinger_controller.py
   DESTINATION lib/${PROJECT_NAME}
 )
+
+add_executable(mellinger_controller mellinger_controller.cpp)
+ament_target_dependencies(mellinger_controller nav_msgs geometry_msgs actuator_msgs tf2 tf2_ros ${eigen_LIBRARIES})
 
 
 if(BUILD_TESTING)

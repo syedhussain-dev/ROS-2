@@ -168,11 +168,11 @@
         <maxVel>0.1</maxVel>
     </gazebo>
 
-    <gazebo reference="imu_link">
+    <gazebo reference="imu_gps_link">
         <sensor name="imu" type="imu">
             <always_on>true</always_on>
             <update_rate>100</update_rate>
-            <gz_frame_id>imu_link</gz_frame_id>
+            <gz_frame_id>imu_gps_link</gz_frame_id>
             <topic>imu</topic>
             <imu>
                 <angular_velocity>
@@ -216,6 +216,14 @@
                     </z>
                 </linear_acceleration>
             </imu>
+        </sensor>
+    </gazebo>
+    <gazebo reference="imu_gps_link">
+        <sensor name="gps" type="navsat">
+            <always_on>true</always_on>
+            <update_rate>10</update_rate>
+            <gz_frame_id>imu_gps_link</gz_frame_id>
+            <topic>gps</topic>
         </sensor>
     </gazebo>
 </robot>

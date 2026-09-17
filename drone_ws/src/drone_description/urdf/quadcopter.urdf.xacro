@@ -160,7 +160,7 @@
             </geometry>
         </collision>
     </link>
-    <link name="imu_link">
+    <link name="imu_gps_link">
         <inertial>
             <mass value="0.002104" />
             <origin xyz="1.4456e-19 5.56902e-19 0.0025" rpy="0 -0 0" />
@@ -618,7 +618,7 @@
         <origin xyz="0.01525 0.01525 -0.00175" rpy="-3.14159 1.2326e-32 3.14159" />
         <axis xyz="0 0 -1" />
         <parent link="board_link_1" />
-        <child link="imu_link" />
+        <child link="imu_gps_link" />
     </joint>
     <joint name="motor1_spinner1_joint" type="continuous">
         <origin xyz="4.19227e-18 -2.77556e-17 0.0185" rpy="-1.47326e-16 6.30118e-17 0.785398" />

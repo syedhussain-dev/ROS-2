@@ -10,3 +10,4 @@ mellinger_controller:
     Kr: 0.1
     Kw: 0.05
     show_logs: True
+    logging_interval: 50

@@ -78,11 +78,13 @@ def generate_launch_description():
         executable="parameter_bridge",
         arguments=[
             "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
+            "/gps@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat"
             "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
             "/quadcopter/simple_velocity_controller/commands@actuator_msgs/msg/Actuators]gz.msgs.Actuators"
         ],
         remappings=[
-            ("/imu","/imu/out")
+            ("/imu","/imu/out"),
+            ("/gps","/gps/out")
         ]
     )
 

@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import TwistStamped, TransformStamped
-from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu
 from actuator_msgs.msg import Actuators
 from numpy import cross, dot, linalg, array, eye, zeros, transpose
 from math import cos, sin, sqrt
@@ -24,6 +24,7 @@ class MellingerController(Node):
         self.declare_parameter("Kr",2.5)
         self.declare_parameter("Kw",0.8)
         self.declare_parameter("show_logs",False)
+        self.declare_parameter("logging_interval",50)
 
         self.mass_ = self.get_parameter("mass").get_parameter_value().double_value
         self.g_ = self.get_parameter("g").get_parameter_value().double_value
@@ -31,6 +32,7 @@ class MellingerController(Node):
         self.kF_ = self.get_parameter("kF").get_parameter_value().double_value
         self.kM_ = self.get_parameter("kM").get_parameter_value().double_value
         self.show_logs = self.get_parameter("show_logs").get_parameter_value().bool_value
+        self.logging_interval = self.get_parameter("logging_interval").get_parameter_value().integer_value
 
         self.get_logger().info("Using a mass of %.2f"%self.mass_)
         self.get_logger().info("Using a gravitational field strength of %.2f"%self.g_)
@@ -50,8 +52,8 @@ class MellingerController(Node):
 
         self.motor_pub_ = self.create_publisher(Actuators,"/quadcopter/simple_velocity_controller/commands",10)
         # Sends the angular velocities to Gazebo [s1, s2, s3, s4]
-        self.ground_truth_sub_ = self.create_subscription(Odometry, "mellinger_controller/odom",self.odomCallback, 10)
-        # Receives s = {position, velocity, quaternion, angular velocity}
+        self.imu_sub_ = self.create_subscription(Imu, "/imu/out",self.imuCallback, 10)
+        # Receives angular velocity and quaternion information
         self.velocity_sub_ = self.create_subscription(TwistStamped, "mellinger_controller/cmd_vel",self.velCallback, 10)
         # Sends the desired trajectory velocity and yaw
 
@@ -89,6 +91,8 @@ class MellingerController(Node):
     def controlLoop(self): # Function that executes the full mellinger pipeline
         if not self.cmd_vel_received: return
         self.log_iterator += 1
+        if self.log_iterator % self.logging_interval == 0 and self.show_logs:
+            self.get_logger().info(f"Yaw Rate T = {self.yaw_rate_T_}")
         self.yaw_T_ += self.yaw_rate_T_ * 0.01
         # Desired yaw
         
@@ -123,15 +127,18 @@ class MellingerController(Node):
             sqrt(max(0,rotor_speed_sq[3]))
         ])
 
-        if self.log_iterator % 30 == 0 and self.show_logs:
+        if self.log_iterator % self.logging_interval == 0 and self.show_logs:
             self.get_logger().info(f"R_ =\n{self.R_}")
             self.get_logger().info(f"eR = {eR}")
             self.get_logger().info(f"eW = {eW}")
             self.get_logger().info(f"Tdes = {tdes}")
-            self.get_logger().info(f"W_T = {W_T}")
-            self.get_logger().info(f"Fdes = {Fdes}")
-            self.get_logger().info(f"Pdes = {Pdes}")
-            self.get_logger().info(f"rotor_speed_sq = {rotor_speed_sq}")
+            #self.get_logger().info(f"W_T = {W_T}")
+            self.get_logger().info(f"r_T_[0] = {self.r_T_[0]}")
+            self.get_logger().info(f"vel_T_[0] = {self.vel_T_[0]}")
+            self.get_logger().info(f"Fdes[0] = {Fdes[0]}")
+            #self.get_logger().info(f"Pdes = {Pdes}")
+            self.get_logger().info(f"Rdes = {Rdes}")
+            #self.get_logger().info(f"rotor_speed_sq = {rotor_speed_sq}")
             self.get_logger().info(f"rotor_speeds = {rotor_speeds}")
 
         msg = Actuators()
@@ -139,22 +146,13 @@ class MellingerController(Node):
         msg.velocity = [rs[0],rs[1],rs[2],rs[3]]
         self.motor_pub_.publish(msg)
 
-    def odomCallback(self, msg:Odometry):
-        self.r_ = array([msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z])
-        # Current xyz positions from the Odometry data in Gazebo or Rviz
-        self.vel_ = array([msg.twist.twist.linear.x, msg.twist.twist.linear.y, msg.twist.twist.linear.z])
-        # Current xyz velocities from the Odometry data in Gazebo or Rviz
-        self.w_ = array([msg.twist.twist.angular.x, msg.twist.twist.angular.y, msg.twist.twist.angular.z])
-        # Current xyz angular velocities from the Odometry data in Gazebo or Rviz
-        self.R_ = Rotation.from_quat([msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z,
-                            msg.pose.pose.orientation.w]).as_matrix()
-        # Current quaternion data from the Odometry data in Gazebo or Rviz
-        quaternion = [msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z,
-                            msg.pose.pose.orientation.w]
-        
-        self.transform_stamp_.transform.translation.x = self.r_[0]
-        self.transform_stamp_.transform.translation.y = self.r_[1]
-        self.transform_stamp_.transform.translation.z = self.r_[2]
+    def imuCallback(self, msg:Imu):
+        self.w_ = array([msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z])
+        # Current xyz angular velocities from the Imu
+        quaternion = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
+        # Current quaternion data from the Imu
+        self.R_ = Rotation.from_quat(quat=quaternion).as_matrix()
+    
         self.transform_stamp_.transform.rotation.x = quaternion[0]
         self.transform_stamp_.transform.rotation.y = quaternion[1]
         self.transform_stamp_.transform.rotation.z = quaternion[2]
@@ -167,6 +165,8 @@ class MellingerController(Node):
         # Array of the desired velocities in the xyz axis' 
         self.yaw_rate_T_ = msg.twist.angular.z
         # Desired yaw rate
+        if self.yaw_rate_T_ <= 0.0366 and self.yaw_rate_T_ >= -0.0366: 
+            self.yaw_rate_T_ = 0.0
         self.cmd_vel_received = True
 
 
