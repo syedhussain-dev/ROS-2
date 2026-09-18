@@ -2,3 +2,4 @@ kalman_filter:
   ros__parameters:
     a: 6378137.0
     1/f: 298.257223563
+    stddev_acc : 1.7e-2

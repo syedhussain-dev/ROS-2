@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import TwistStamped, TransformStamped
-from sensor_msgs.msg import Imu
+from nav_msgs.msg import Odometry
 from actuator_msgs.msg import Actuators
 from numpy import cross, dot, linalg, array, eye, zeros, transpose
 from math import cos, sin, sqrt
@@ -52,8 +52,8 @@ class MellingerController(Node):
 
         self.motor_pub_ = self.create_publisher(Actuators,"/quadcopter/simple_velocity_controller/commands",10)
         # Sends the angular velocities to Gazebo [s1, s2, s3, s4]
-        self.imu_sub_ = self.create_subscription(Imu, "/imu/out",self.imuCallback, 10)
-        # Receives angular velocity and quaternion information
+        self.odom_sub_ = self.create_subscription(Odometry, "/mellinger_controller/odom",self.odomCallback, 10)
+        # Receives position, velocity, orientation and angular velocity
         self.velocity_sub_ = self.create_subscription(TwistStamped, "mellinger_controller/cmd_vel",self.velCallback, 10)
         # Sends the desired trajectory velocity and yaw
 
@@ -146,13 +146,12 @@ class MellingerController(Node):
         msg.velocity = [rs[0],rs[1],rs[2],rs[3]]
         self.motor_pub_.publish(msg)
 
-    def imuCallback(self, msg:Imu):
-        self.w_ = array([msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z])
-        # Current xyz angular velocities from the Imu
-        quaternion = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
-        # Current quaternion data from the Imu
-        self.R_ = Rotation.from_quat(quat=quaternion).as_matrix()
-    
+    def odomCallback(self, msg:Odometry):
+        self.r_ = [msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z]
+        self.vel_ = [msg.twist.twist.linear.x, msg.twist.twist.linear.y, msg.twist.twist.linear.z]
+        quaternion = [msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z,
+                      msg.pose.pose.orientation.w]
+        self.R_ = Rotation.from_quat(quaternion).as_matrix()
         self.transform_stamp_.transform.rotation.x = quaternion[0]
         self.transform_stamp_.transform.rotation.y = quaternion[1]
         self.transform_stamp_.transform.rotation.z = quaternion[2]

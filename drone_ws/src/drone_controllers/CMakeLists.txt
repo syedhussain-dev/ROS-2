@@ -22,10 +22,14 @@ find_package(sensor_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
 ament_python_install_package(${PROJECT_NAME})
 
 include_directories(include)
-include_directories(${EIGEN_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+# add_executable(mellinger_controller src/mellinger_controller.cpp)
+# ament_target_dependencies(mellinger_controller rclcpp nav_msgs geometry_msgs actuator_msgs tf2 tf2_ros ${eigen_LIBRARIES})
 
 install(
   DIRECTORY include
@@ -41,9 +45,6 @@ install(PROGRAMS
   ${PROJECT_NAME}/mellinger_controller.py
   DESTINATION lib/${PROJECT_NAME}
 )
-
-add_executable(mellinger_controller mellinger_controller.cpp)
-ament_target_dependencies(mellinger_controller nav_msgs geometry_msgs actuator_msgs tf2 tf2_ros ${eigen_LIBRARIES})
 
 
 if(BUILD_TESTING)

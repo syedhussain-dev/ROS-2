@@ -1,4 +1,4 @@
-#include "mellinger_controller.hpp"
+#include "controllers/mellinger_controller.hpp"
 #include <Eigen/Geometry>
 using std::placeholders::_1;
 

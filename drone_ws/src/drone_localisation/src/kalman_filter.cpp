@@ -10,7 +10,7 @@ KalmanFilter::KalmanFilter(const std::string& name) : Node(name){
 }
 
 KalmanFilter::odomCallback(const nav_msgs::msg::Odometry& odom){
-
+    
 }
 
 KalmanFilter::imuCallback(const sensor_msgs::msg::Imu& imu){
@@ -27,8 +27,8 @@ KalmanFilter::measurementUpdate(){
 
 int main(int argc, char* argv){
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<KalmanFilter>("kalman_filter");
-    rclcpp::spin(node);
-    rclcpp::shutdown(node);
+    // // auto node = std::make_shared<KalmanFilter>("kalman_filter");
+    // rclcpp::spin(node);
+    rclcpp::shutdown();
     return 0;
 }

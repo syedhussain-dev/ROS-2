@@ -25,9 +25,7 @@ def generate_launch_description():
         name="joy_teleop",
         parameters=[os.path.join(get_package_share_directory("drone_controllers"), "config", "joy_teleop.yaml")],
         output="screen"
-    )
-
-  
+    )  
 
     use_python = LaunchConfiguration("use_python")
 
@@ -56,6 +54,23 @@ def generate_launch_description():
             )
         ]
     )
+
+    kalman_filter = GroupAction(
+        actions=[
+            Node(
+                package="drone_localisation",
+                executable="kalman_filter.py",
+                parameters=[os.path.join(get_package_share_directory("drone_localisation"),"config","kalman_filter.yaml")],
+                condition=IfCondition(use_python)
+            ),
+            Node(
+                package="drone_localisation",
+                executable="kalman_filter",
+                parameters=[os.path.join(get_package_share_directory("drone_localisation"),"config","kalman_filter.yaml")],
+                condition=UnlessCondition(use_python)
+            )
+        ]
+    )
     
 
 
@@ -64,5 +79,6 @@ def generate_launch_description():
         joy_node,
         joy_teleop,
         joint_state_broadcaster_spawner,
-        mellinger_spawner
+        mellinger_spawner,
+        kalman_filter
     ])
