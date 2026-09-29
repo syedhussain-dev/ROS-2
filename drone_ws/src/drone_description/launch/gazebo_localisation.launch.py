@@ -45,14 +45,6 @@ def generate_launch_description():
     model_path = str(Path(drone_description_package_location).parent.resolve())
     #model_path += pathsep + os.path.join(drone_description_package_location,"models")
 
-    rotor_plugin_path = os.path.join(
-        get_package_share_directory("drone_description"), "lib"
-    )
-
-    gazebo_plugin_path = SetEnvironmentVariable(
-        "GZ_SIM_SYSTEM_PLUGIN_PATH",
-        rotor_plugin_path
-    )
 
     gazebo_resource_path = SetEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH", model_path
@@ -92,7 +84,6 @@ def generate_launch_description():
         model_args,
         world_name_args,
         robot_state_publisher,
-        gazebo_plugin_path,
         gazebo_resource_path,
         gazebo,
         gz_spawn_entity,

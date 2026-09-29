@@ -25,14 +25,14 @@ def generate_launch_description():
     )
 
     controller_launch = TimerAction(
-        period=7.5,
+        period=12.0,
         actions=[IncludeLaunchDescription(
             PythonLaunchDescriptionSource(controller_launch_path)
         )]
     )
 
     plotjuggler_launch = TimerAction(
-        period=15.0,
+        period=20.0,
         actions=[
             Node(
                 package="plotjuggler",

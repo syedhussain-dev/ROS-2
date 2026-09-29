@@ -44,12 +44,14 @@ def generate_launch_description():
                 package="drone_controllers",
                 executable="mellinger_controller.py",
                 parameters=[os.path.join(get_package_share_directory("drone_controllers"),"config","mellinger_controller.yaml")],
+                output="screen",
                 condition=IfCondition(use_python)
             ),
             Node(
                 package="drone_controllers",
                 executable="mellinger_controller",
                 parameters=[os.path.join(get_package_share_directory("drone_controllers"),"config","mellinger_controller.yaml")],
+                output="screen",
                 condition=UnlessCondition(use_python)
             )
         ]
@@ -61,12 +63,14 @@ def generate_launch_description():
                 package="drone_localisation",
                 executable="kalman_filter.py",
                 parameters=[os.path.join(get_package_share_directory("drone_localisation"),"config","kalman_filter.yaml")],
+                output="screen",
                 condition=IfCondition(use_python)
             ),
             Node(
                 package="drone_localisation",
                 executable="kalman_filter",
                 parameters=[os.path.join(get_package_share_directory("drone_localisation"),"config","kalman_filter.yaml")],
+                output="screen",
                 condition=UnlessCondition(use_python)
             )
         ]

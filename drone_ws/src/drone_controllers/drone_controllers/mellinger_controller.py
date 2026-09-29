@@ -151,7 +151,9 @@ class MellingerController(Node):
         self.vel_ = [msg.twist.twist.linear.x, msg.twist.twist.linear.y, msg.twist.twist.linear.z]
         quaternion = [msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z,
                       msg.pose.pose.orientation.w]
-        self.R_ = Rotation.from_quat(quaternion).as_matrix()
+        quaternion_norm = linalg.norm(quaternion)
+        if quaternion_norm != 0.0:
+            self.R_ = Rotation.from_quat(quaternion).as_matrix()
         self.transform_stamp_.transform.rotation.x = quaternion[0]
         self.transform_stamp_.transform.rotation.y = quaternion[1]
         self.transform_stamp_.transform.rotation.z = quaternion[2]

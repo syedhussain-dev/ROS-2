@@ -8,7 +8,7 @@
         <visual>
             <origin xyz="3.07274e-19 8.65562e-19 0" rpy="0 0 -0.341122" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/arm_link_1.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/arm_link_1.stl" scale="1 1 1" />
             </geometry>
             <material name="0.670588_0.023529_0.023529_0.000000_0.000000">
                 <color rgba="0.670588 0.0235294 0.0235294 1" />
@@ -24,7 +24,7 @@
         <visual>
             <origin xyz="0 9.18485e-19 0.02" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/arm_link_2.stl" scale="1 1 1" />
+                <mesh filename="package://s/meshes/arm_link_2.stl" scale="1 1 1" />
             </geometry>
             <material name="0.670588_0.023529_0.023529_0.000000_0.000000">
                 <color rgba="0.670588 0.0235294 0.0235294 1" />
@@ -40,7 +40,7 @@
         <visual>
             <origin xyz="0.028 0.05 0.045" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/arm_link_3a.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/arm_link_3a.stl" scale="1 1 1" />
             </geometry>
             <material name="0.670588_0.023529_0.023529_0.000000_0.000000">
                 <color rgba="0.670588 0.0235294 0.0235294 1" />
@@ -56,7 +56,7 @@
         <visual>
             <origin xyz="-9.18485e-19 -0.02 -2.03945e-34" rpy="0 1.5708 -0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/arm_link_3b.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/arm_link_3b.stl" scale="1 1 1" />
             </geometry>
             <material name="0.670588_0.023529_0.023529_0.000000_0.000000">
                 <color rgba="0.670588 0.0235294 0.0235294 1" />
@@ -72,7 +72,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/base_link.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/base_link.stl" scale="1 1 1" />
             </geometry>
             <material name="0.176471_0.172549_0.172549_0.000000_0.000000">
                 <color rgba="0.176471 0.172549 0.172549 1" />
@@ -88,7 +88,7 @@
         <visual>
             <origin xyz="0.0065849 -0.009 -0.0617297" rpy="3.14159 1.53279 3.14159" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/claw.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/claw.stl" scale="1 1 1" />
             </geometry>
             <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
                 <color rgba="0.4 0.4 0.4 1" />
@@ -104,7 +104,7 @@
         <visual>
             <origin xyz="0.00892589 0.009 -0.0614349" rpy="0 1.5708 -0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/claw.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/claw.stl" scale="1 1 1" />
             </geometry>
             <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
                 <color rgba="0.4 0.4 0.4 1" />
@@ -120,7 +120,7 @@
         <visual>
             <origin xyz="-0.0275 0.021 -0.0363731" rpy="0.523599 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/end_effector_a.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/end_effector_a.stl" scale="1 1 1" />
             </geometry>
             <material name="0.670588_0.023529_0.023529_0.000000_0.000000">
                 <color rgba="0.670588 0.0235294 0.0235294 1" />
@@ -136,7 +136,7 @@
         <visual>
             <origin xyz="0 0.01 -9.18485e-19" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/end_effector_b.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/end_effector_b.stl" scale="1 1 1" />
             </geometry>
             <material name="0.670588_0.023529_0.023529_0.000000_0.000000">
                 <color rgba="0.670588 0.0235294 0.0235294 1" />
@@ -152,7 +152,7 @@
         <visual>
             <origin xyz="0 0 0.0001" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/Hex_head_screw_grade_A___B_M3x0_50_x_30.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/Hex_head_screw_grade_A___B_M3x0_50_x_30.stl" scale="1 1 1" />
             </geometry>
             <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
                 <color rgba="0.603922 0.647059 0.686275 1" />
@@ -168,7 +168,7 @@
         <visual>
             <origin xyz="0 0 0.0001" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/Hex_head_screw_grade_A___B_M3x0_50_x_30.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/Hex_head_screw_grade_A___B_M3x0_50_x_30.stl" scale="1 1 1" />
             </geometry>
             <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
                 <color rgba="0.603922 0.647059 0.686275 1" />
@@ -184,7 +184,7 @@
         <visual>
             <origin xyz="0 -7.52852e-20 -0.00231466" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/Prevailing_torque_nut_thin_M3x0_50.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/Prevailing_torque_nut_thin_M3x0_50.stl" scale="1 1 1" />
             </geometry>
             <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
                 <color rgba="0.603922 0.647059 0.686275 1" />
@@ -200,7 +200,7 @@
         <visual>
             <origin xyz="0 -7.52852e-20 -0.00231466" rpy="0 -0 0" />
             <geometry>
-                <mesh filename="package://robot_arm_description/meshes/Prevailing_torque_nut_thin_M3x0_50.stl" scale="1 1 1" />
+                <mesh filename="package://arm_8dof_description/meshes/Prevailing_torque_nut_thin_M3x0_50.stl" scale="1 1 1" />
             </geometry>
             <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
                 <color rgba="0.603922 0.647059 0.686275 1" />
@@ -274,7 +274,7 @@
         <parent link="end_effector_b" />
         <child link="hex_head_screw_grade_a___b_m3x0_50_x_30_1" />
     </joint>
-    <joint name="end_effector_joint" type="fixed">
+    <joint name="end_effector_joint" type="continuous">
         <origin xyz="-0.0275 0.054 -0.0935307" rpy="1.0472 2.9943e-16 -3.14159" />
         <axis xyz="0 1 0" />
         <parent link="end_effector_a" />

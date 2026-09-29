@@ -8,9 +8,11 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
+    robot_arm_description_path = get_package_share_directory("arm_8dof_description")
+
     model_arg = DeclareLaunchArgument(
         name="model",
-        default_value=os.path.join(get_package_share_directory("robot_arm_description"),"urdf","robot_arm.urdf.xacro")
+        default_value=os.path.join(robot_arm_description_path,"urdf","robot_arm.urdf.xacro")
     )
 
     model = LaunchConfiguration("model")
@@ -33,7 +35,7 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2",
         output="screen",
-        arguments=["-d",os.path.join(get_package_share_directory("robot_arm_description"),"rviz","display2.rviz")]
+        arguments=["-d",os.path.join(robot_arm_description_path,"rviz","display2.rviz")]
 
     )
 

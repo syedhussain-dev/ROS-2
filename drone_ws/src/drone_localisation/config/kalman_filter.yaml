@@ -3,3 +3,6 @@ kalman_filter:
     a: 6378137.0
     1/f: 298.257223563
     stddev_acc : 1.7e-2
+    stddev_lat: 1.5
+    stddev_long: 1.5
+    stddev_alt: 3.0

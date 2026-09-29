@@ -10,7 +10,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
 
-    robot_arm_description_package = get_package_share_directory("robot_arm_description")
+    robot_arm_description_package = get_package_share_directory("arm_8dof_description")
     ros_distro = os.environ["ROS_DISTRO"]
     is_ignition = "True" if ros_distro == "humble" else "False"
 
@@ -39,6 +39,38 @@ def generate_launch_description():
 
     model_path = str(Path(robot_arm_description_package).parent.resolve())
 
-    return LaunchDescription([
+    gazebo_resource_path = SetEnvironmentVariable(
+        "GZ_SIM_RESOURCE_PATH", model_path
+    )
 
+    gazebo = IncludeLaunchDescription(PythonLaunchDescriptionSource([
+        os.path.join(get_package_share_directory("ros_gz_sim"),"launch"),"/gz_sim.launch.py"]),
+        launch_arguments={
+            "gz_args":PythonExpression(["'",world, " -v 4 -r'"])
+        }.items()
+    )
+
+    gz_spawn_entity = Node(
+        package="ros_gz_sim",
+        executable="create",
+        arguments=["-topic","robot_description","-name","quadcopter"],
+        output="screen"
+    )
+
+    gazebo_ros2_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        ]
+    )
+
+    return LaunchDescription([
+        model_arg,
+        world_arg,
+        robot_state_publisher,
+        gazebo_resource_path,
+        gazebo,
+        gz_spawn_entity,
+        gazebo_ros2_bridge
     ])

@@ -8,6 +8,7 @@
                 <parameters>$(find drone_controllers)/config/ros2_control_parameters.yaml</parameters>
             </plugin>
             <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/>
+            <plugin filename="ignition-gazebo-navsat-system" name="ignition::gazebo::systems::NavSat"/>
             <plugin 
                 filename="ignition-gazebo-multicopter-motor-model-system" 
                 name="ignition::gazebo::systems::MulticopterMotorModel">
@@ -69,6 +70,7 @@
                 <parameters>$(find drone_controllers)/config/ros2_control_parameters.yaml</parameters>
             </plugin>
             <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+            <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat"/>
             <plugin 
                 filename="gz-sim-multicopter-motor-model-system" 
                 name="gz::sim::systems::MulticopterMotorModel">
@@ -172,7 +174,6 @@
         <sensor name="imu" type="imu">
             <always_on>true</always_on>
             <update_rate>100</update_rate>
-            <gz_frame_id>imu_gps_link</gz_frame_id>
             <topic>imu</topic>
             <imu>
                 <angular_velocity>
@@ -222,7 +223,6 @@
         <sensor name="gps" type="navsat">
             <always_on>true</always_on>
             <update_rate>10</update_rate>
-            <gz_frame_id>imu_gps_link</gz_frame_id>
             <topic>gps</topic>
             <navsat>
                 <position_sensing>
