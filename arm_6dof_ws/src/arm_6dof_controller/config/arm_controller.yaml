@@ -1,0 +1,26 @@
+ArmController:
+  ros__parameters:
+    show_logs: True
+    bottom_joint:
+      origin: [-2.86527e-17, -1.03025e-17, 0.085]
+      axis: [0.0, 0.0, -1.0]
+
+    shoulder_joint:
+      origin: [-0.141357, 0.0501817, 0.16]
+      axis: [0.0, -0.0, -1.0]
+
+    elbow_joint:
+      origin: [-0.35, 0.0, 7.84231e-17]
+      axis: [1.0, -0.0, -0.0]
+
+    wrist_rotating_joint:
+      origin: [0.028, -0.226, 0.045]
+      axis: [0.0, 1.0, 0.0]
+
+    wrist_deviating_joint:
+      origin: [0.0, -0.135, -0.0275]
+      axis: [1.0, 0.0, 0.0]
+
+    end_effector_joint:
+      origin: [-0.0275, 0.054, -0.0935307]
+      axis: [0.0, 1.0, 0.0]

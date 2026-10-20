@@ -18,6 +18,7 @@ class KalmanFilter(Node):
         self.declare_parameter("stddev_lat",1.5)
         self.declare_parameter("stddev_long",1.5)
         self.declare_parameter("stddev_alt",3.0)
+        self.declare_parameter("show_logs",False)
 
         self.a = self.get_parameter("a").get_parameter_value().double_value
         self.inv_f = self.get_parameter("1/f").get_parameter_value().double_value
@@ -27,12 +28,10 @@ class KalmanFilter(Node):
         self.stddev_long = self.get_parameter("stddev_long").get_parameter_value().double_value
         self.stddev_alt = self.get_parameter("stddev_alt").get_parameter_value().double_value
         self.stddev_acc = self.get_parameter("stddev_acc").get_parameter_value().double_value
+        self.show_logs = self.get_parameter("show_logs").get_parameter_value().bool_value
 
-        self.prev_vel_ = zeros([3])
-        self.prev_r_ = zeros([3])
+        self.odom_acc = zeros([3])
         self.linear_acc = zeros([3])
-        self.pred_vel_ = zeros([3])
-        self.pred_r_ = zeros([3])
         self.quaternion = zeros([4])
         self.ang_vel = zeros([3])
 
@@ -48,8 +47,7 @@ class KalmanFilter(Node):
         self.T_ = zeros([3,3])
         self.enu = zeros([3])
 
-        self.state_covar = zeros([6,6])
-        self.pred_state_covar = zeros([6,6])
+        self.state_covar = identity(6)
 
         self.H = array(
             [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -79,39 +77,47 @@ class KalmanFilter(Node):
         ])
         
         self.R = array(
-            [[self.stddev_lat**2, 0.0, 0.0],
-            [0.0, self.stddev_long**2, 0.0],
-            [0.0, 0.0, self.stddev_alt**2]]
+            [[4.76e-7, 0.0, 0.0],
+            [0.0,1.23e-6, 0.0],
+            [0.0, 0.0,1e-12]]
         )
 
         self.X = zeros([6])
-        self.X_pred = zeros([6])
         
         self.imu_sub_ = self.create_subscription(Imu,"/imu/out",self.imuCallback,10)
         self.gps_sub_ = self.create_subscription(NavSatFix,"/gps/out",self.gpsCallback,10)
         self.odom_pub_ = self.create_publisher(Odometry, "/mellinger_controller/odom", 10)
 
-        self.msg = Odometry()
+        self.log_iterator = 0
         self.timer = self.create_timer(self.dt, self.controlLoop)
 
     def controlLoop(self):
-        self.measurementUpdate()
-        self.msg.pose.pose.orientation.x = self.quaternion[0]
-        self.msg.pose.pose.orientation.y = self.quaternion[1]
-        self.msg.pose.pose.orientation.z = self.quaternion[2]
-        self.msg.pose.pose.orientation.w = self.quaternion[3]
-        self.msg.twist.twist.angular.x = self.ang_vel[0]
-        self.msg.twist.twist.angular.y = self.ang_vel[1]
-        self.msg.twist.twist.angular.z = self.ang_vel[2]
+        self.log_iterator += 1
+        self.statePrediction()
+        msg = Odometry()
+        msg.pose.pose.orientation.x = self.quaternion[0]
+        msg.pose.pose.orientation.y = self.quaternion[1]
+        msg.pose.pose.orientation.z = self.quaternion[2]
+        msg.pose.pose.orientation.w = self.quaternion[3]
+        msg.twist.twist.angular.x = self.ang_vel[0]
+        msg.twist.twist.angular.y = self.ang_vel[1]
+        msg.twist.twist.angular.z = self.ang_vel[2]
 
-        self.msg.pose.pose.position.x = self.X[0]
-        self.msg.twist.twist.linear.x = self.X[1]
-        self.msg.pose.pose.position.y = self.X[2]
-        self.msg.twist.twist.linear.y = self.X[3]
-        self.msg.pose.pose.position.z = self.X[4]
-        self.msg.twist.twist.linear.z = self.X[5]
+        msg.pose.pose.position.x = self.X[0]
+        msg.twist.twist.linear.x = self.X[1]
+        msg.pose.pose.position.y = self.X[2]
+        msg.twist.twist.linear.y = self.X[3]
+        msg.pose.pose.position.z = self.X[4]
+        msg.twist.twist.linear.z = self.X[5]
+
+        # if self.show_logs and self.log_iterator % 50 == 0:
+        #     self.get_logger().info(
+        #         f"Position: {self.X[[0,2,4]]},"
+        #         f"Velocity: {self.X[[1,3,5]]},"
+        #         f"Acceleration: {self.odom_acc}"
+        #     )
         
-        self.odom_pub_.publish(self.msg)
+        self.odom_pub_.publish(msg)
 
     def imuCallback(self, msg:Imu):
         self.linear_acc = [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
@@ -144,19 +150,25 @@ class KalmanFilter(Node):
         delta_z = z - self.z0
 
         self.enu = self.T_ @ array([delta_x, delta_y, delta_z])
+        if self.show_logs:
+            self.get_logger().info(f"GPS ENU: {self.enu}")
+            self.get_logger().info(f"State before gps correction: {self.X}")
+            self.get_logger().info(f"State covar: {self.state_covar}")
+        self.measurementUpdate()
+        if self.show_logs:
+            self.get_logger().info(f"State after gps correction: {self.X}")
         
     def measurementUpdate(self):
-        self.statePrediction()
-        y = self.enu - self.H @ self.X_pred
-        K = self.pred_state_covar @ transpose(self.H) @ inv(self.H @ self.pred_state_covar @ transpose(self.H) + self.R)
-        self.X = self.X_pred + K @ y
-        self.state_covar = (identity(6) - K @ self.H) @ self.pred_state_covar
+        y = self.enu - self.H @ self.X
+        K = self.state_covar @ transpose(self.H) @ inv(self.H @ self.state_covar @ transpose(self.H) + self.R)
+        self.X = self.X + K @ y
+        self.state_covar = (identity(6) - K @ self.H) @ self.state_covar
 
     def statePrediction(self):
-        odom_acc = self.R_ @ self.linear_acc
-        odom_acc[2] -= 9.81
-        self.X_pred = self.F @ self.X + self.B @ odom_acc
-        self.pred_state_covar = self.F @ self.state_covar @ transpose(self.F) + self.Q
+        self.odom_acc = self.R_ @ self.linear_acc
+        self.odom_acc[2] -= 9.81
+        self.X = self.F @ self.X + self.B @ self.odom_acc
+        self.state_covar = self.F @ self.state_covar @ transpose(self.F) + self.Q
 
 def d_to_r(value:float): # Degrees to radians
     value *= (pi / 180)

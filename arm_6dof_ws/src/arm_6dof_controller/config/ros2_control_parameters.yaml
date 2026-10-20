@@ -1,0 +1,22 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+    use_sim_time: true
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    claw_controller:
+      type: parallel_gripper_action_controller/GripperActionController
+
+claw_controller:
+  ros__parameters:
+    joint: claw1_joint
+    state_interfaces:
+      - position
+      - velocity
+    action_monitor_rate: 20.0
+    goal_tolerance: 0.01
+    stall_velocity_threshold: 0.001
+    allow_stalling: true
+    stall_timeout: 0.5

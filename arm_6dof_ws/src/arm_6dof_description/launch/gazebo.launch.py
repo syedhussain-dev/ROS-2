@@ -10,7 +10,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
 
-    robot_arm_description_package = get_package_share_directory("arm_8dof_description")
+    robot_arm_description_package = get_package_share_directory("arm_6dof_description")
     ros_distro = os.environ["ROS_DISTRO"]
     is_ignition = "True" if ros_distro == "humble" else "False"
 
@@ -29,7 +29,7 @@ def generate_launch_description():
         PythonExpression(expression=["'",LaunchConfiguration("world_name"),"'"," + '.world'"])
     ])
 
-    robot_description = ParameterValue(Command(["xacro ",LaunchConfiguration("model"), "is_ignition:=",is_ignition]), value_type="str")
+    robot_description = ParameterValue(Command(["xacro ",LaunchConfiguration("model"), " is_ignition:=",is_ignition]), value_type=str)
 
     robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -53,7 +53,7 @@ def generate_launch_description():
     gz_spawn_entity = Node(
         package="ros_gz_sim",
         executable="create",
-        arguments=["-topic","robot_description","-name","quadcopter"],
+        arguments=["-topic","robot_description","-name","6dof_arm"],
         output="screen"
     )
 

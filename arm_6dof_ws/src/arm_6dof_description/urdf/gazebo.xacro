@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<robot name="robot_arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <gazebo>
+        <xacro:if value="$(arg is_ignition)">
+            <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+                <parameters>$(find arm_6dof_controller)/config/ros2_control_parameters.yaml</parameters>
+            </plugin>
+        </xacro:if>
+        <xacro:unless value="$(arg is_ignition)">
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find arm_6dof_controller)/config/ros2_control_parameters.yaml</parameters>
+            </plugin>
+        </xacro:unless>
+    </gazebo>
+
+    <gazebo reference="claw">
+        <surface>
+            <friction>
+                <ode>
+                    <mu>1.0</mu>
+                    <mu2>1.0</mu2>
+                </ode>
+            </friction>
+        </surface>
+    </gazebo>
+
+    <gazebo reference="claw_1">
+        <surface>
+            <friction>
+                <ode>
+                    <mu>1.0</mu>
+                    <mu2>1.0</mu2>
+                </ode>
+            </friction>
+        </surface>
+    </gazebo>
+</robot>

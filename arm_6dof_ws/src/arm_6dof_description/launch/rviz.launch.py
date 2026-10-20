@@ -8,7 +8,7 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    robot_arm_description_path = get_package_share_directory("arm_8dof_description")
+    robot_arm_description_path = get_package_share_directory("arm_6dof_description")
 
     model_arg = DeclareLaunchArgument(
         name="model",

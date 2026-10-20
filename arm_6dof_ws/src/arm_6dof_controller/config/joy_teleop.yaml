@@ -1,0 +1,44 @@
+joy_teleop:
+  ros__parameters:
+    joy_topic: joy
+    move:
+      type: topic
+      interface_type: geometry_msgs/msg/TwistStamped
+      topic_name: /arm_controller/cmd_vel
+
+      deadman_buttons: [5]
+
+      axis_mappings:
+        twist-linear-x:
+          axis: 0
+          scale: 0.1
+          offset: 0.0
+
+        twist-linear-y:
+          axis: 1
+          scale: 0.1
+          offset: 0.0
+
+        twist-linear-z:
+          axis: 3
+          scale: 0.1
+          offset: 0.0
+
+    claw_open:
+      type: topic
+      interface_type: std_msgs/msg/Float64
+      topic_name: /arm_controller/cmd_claw
+      deadman_buttons: [0]
+      message_value:
+        data:
+          value: 0.5
+
+    claw_close:
+      type: topic
+      interface_type: std_msgs/msg/Float64
+      topic_name: /arm_controller/cmd_claw
+      deadman_buttons: [1]
+      message_value:
+        data:
+          value: -0.5
+      

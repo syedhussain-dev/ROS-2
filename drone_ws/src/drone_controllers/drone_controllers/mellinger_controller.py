@@ -132,13 +132,12 @@ class MellingerController(Node):
             self.get_logger().info(f"eR = {eR}")
             self.get_logger().info(f"eW = {eW}")
             self.get_logger().info(f"Tdes = {tdes}")
-            #self.get_logger().info(f"W_T = {W_T}")
-            self.get_logger().info(f"r_T_[0] = {self.r_T_[0]}")
-            self.get_logger().info(f"vel_T_[0] = {self.vel_T_[0]}")
-            self.get_logger().info(f"Fdes[0] = {Fdes[0]}")
-            #self.get_logger().info(f"Pdes = {Pdes}")
+            self.get_logger().info(f"r_T_ = {self.r_T_}")
+            self.get_logger().info(f"vel_T_ = {self.vel_T_}")
+            self.get_logger().info(f"Fdes = {Fdes}")
+            self.get_logger().info(f"Pdes = {Pdes}")
             self.get_logger().info(f"Rdes = {Rdes}")
-            #self.get_logger().info(f"rotor_speed_sq = {rotor_speed_sq}")
+            self.get_logger().info(f"rotor_speed_sq = {rotor_speed_sq}")
             self.get_logger().info(f"rotor_speeds = {rotor_speeds}")
 
         msg = Actuators()
@@ -151,6 +150,8 @@ class MellingerController(Node):
         self.vel_ = [msg.twist.twist.linear.x, msg.twist.twist.linear.y, msg.twist.twist.linear.z]
         quaternion = [msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z,
                       msg.pose.pose.orientation.w]
+        if self.show_logs and self.log_iterator % self.logging_interval == 0 and self.cmd_vel_received:
+            self.get_logger().info(f"Quaternion: {quaternion}")
         quaternion_norm = linalg.norm(quaternion)
         if quaternion_norm != 0.0:
             self.R_ = Rotation.from_quat(quaternion).as_matrix()
