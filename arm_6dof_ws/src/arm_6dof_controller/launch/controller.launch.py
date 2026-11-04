@@ -12,22 +12,34 @@ def generate_launch_description():
         name="use_python",
         default_value="true"
     )
-
-    joy_node = Node(
-        package="joy",
-        executable="joy_node",
-        name="joy_node",
-        parameters=[os.path.join(gpsd("arm_6dof_controller"),"config","joy_node.yaml")],
-        output="screen"
+    use_controller_arg = DeclareLaunchArgument(
+        name="use_controller",
+        default_value="true"
     )
 
-    joy_teleop = Node(
-        package="joy_teleop",
-        executable="joy_teleop",
-        name="joy_teleop",
-        parameters=[os.path.join(gpsd("arm_6dof_controller"),"config","joy_teleop.yaml")],
-        output="screen"
+    use_controller = LaunchConfiguration("use_controller")
+
+    xbox_nodes = GroupAction(
+        condition=IfCondition(use_controller),
+        actions=[
+            Node(
+                package="joy",
+                executable="joy_node",
+                name="joy_node",
+                parameters=[os.path.join(gpsd("arm_6dof_controller"),"config","joy_node.yaml")],
+                output="screen"
+            ),
+            Node(
+                package="joy_teleop",
+                executable="joy_teleop",
+                name="joy_teleop",
+                parameters=[os.path.join(gpsd("arm_6dof_controller"),"config","joy_teleop.yaml")],
+                output="screen"
+            )
+        ]  
     )
+
+    
 
     use_python = LaunchConfiguration("use_python")
 
@@ -77,8 +89,8 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_python_arg,
-        joy_node,
-        joy_teleop,
+        use_controller_arg,
+        xbox_nodes,
         joint_state_broadcaster,
         arm_controller,
         claw_controller

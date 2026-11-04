@@ -28,7 +28,8 @@ class ClawController(Node):
 
     def controlLoop(self):
         if not self.cmd_received: return
-        self.q += self.ang_vel * self.dt
+        if self.q <= -1.68: self.ang_vel = 0.0
+        self.q += self.ang_vel * self.dt  
         if self.show_logs and self.log_iterator % 30 == 0:
             self.get_logger().info(f"ang_vel: {self.ang_vel}")
             self.get_logger().info(f"q: {self.q}")
