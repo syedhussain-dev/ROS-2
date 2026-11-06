@@ -23,7 +23,7 @@ def generate_launch_description():
     )
 
     controller = TimerAction(
-        period=15.0,
+        period=13.0,
         actions=[
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(controller_path)

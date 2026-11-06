@@ -1,6 +1,6 @@
-ArmController:
+arm_controller:
   ros__parameters:
-    show_logs: True
+    show_logs: true
     bottom_joint.origin: [-2.86527e-17, -1.03025e-17, 0.085]
     bottom_joint.axis: [0.0, 0.0, -1.0]
 

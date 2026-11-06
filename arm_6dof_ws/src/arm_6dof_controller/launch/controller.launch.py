@@ -37,9 +37,7 @@ def generate_launch_description():
                 output="screen"
             )
         ]  
-    )
-
-    
+    )        
 
     use_python = LaunchConfiguration("use_python")
 
@@ -48,7 +46,26 @@ def generate_launch_description():
         executable="spawner",
         arguments=[
             "joint_state_broadcaster","--controller-manager","/controller_manager"
-        ]
+        ],
+        output="screen"
+    )
+
+    arm_trajectory_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "arm_trajectory_controller","--controller-manager","/controller_manager"
+        ],
+        output="screen"
+    )
+
+    claw_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "claw_controller","--controller-manager","/controller_manager"
+        ],
+        output="screen"
     )
 
     arm_controller = GroupAction(
@@ -58,6 +75,7 @@ def generate_launch_description():
                 executable="arm_controller.py",
                 parameters=[os.path.join(gpsd("arm_6dof_controller"),"config","arm_controller.yaml")],
                 output="screen",
+
                 condition=IfCondition(use_python)
             ),
             Node(
@@ -70,7 +88,7 @@ def generate_launch_description():
         ]
     )
 
-    claw_controller = GroupAction(
+    claw_controller_node = GroupAction(
         actions=[
             Node(
                 package="arm_6dof_controller",
@@ -87,11 +105,37 @@ def generate_launch_description():
         ]
     )
 
+    joint_state_relay = Node(
+        package="topic_tools",
+        executable="relay",
+        name="joint_state_relay",
+        arguments=[
+            "/joint_states",
+            "/arm_controller/joint_states"
+        ],
+        output="screen"
+    )
+
+    joint_trajectory_relay = Node(
+        package="topic_tools",
+        executable="relay",
+        name="joint_trajectory_relay",
+        arguments=[
+            "/arm_controller/outputs",
+            "/arm_trajectory_controller/joint_trajectory"
+        ],
+        output="screen"
+    )
+
     return LaunchDescription([
         use_python_arg,
         use_controller_arg,
         xbox_nodes,
         joint_state_broadcaster,
+        arm_trajectory_controller,
+        claw_controller_spawner,
         arm_controller,
-        claw_controller
+        claw_controller_node,
+        joint_state_relay,
+        joint_trajectory_relay
     ])

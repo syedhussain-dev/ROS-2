@@ -7,7 +7,7 @@ from sensor_msgs.msg import JointState
 
 class ClawController(Node):
     def __init__(self):
-        super().__init__("claw_controller_node")
+        super().__init__("claw_controller")
 
         self.declare_parameter("show_logs",True)
         self.show_logs = self.get_parameter("show_logs").get_parameter_value().bool_value

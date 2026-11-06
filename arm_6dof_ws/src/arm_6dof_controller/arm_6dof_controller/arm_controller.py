@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.duration import Duration
 from geometry_msgs.msg import TwistStamped
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
-from numpy import array, linalg, identity, sin, cos, zeros, outer, cross
+from numpy import array, linalg, identity, sin, cos, zeros, outer, cross, all, append
 
 class ArmController(Node):
     def __init__(self):
-        super().__init__("arm_controller_node")
+        super().__init__("arm_controller")
 
         self.declare_parameter("show_logs",False)
         self.declare_parameter("bottom_joint.origin",[0.0, 0.0, 0.0])
@@ -34,16 +35,16 @@ class ArmController(Node):
         self.p_wrist_deviating = self.get_parameter("wrist_deviating_joint.origin").value
         self.a_wrist_deviating = self.get_parameter("wrist_deviating_joint.axis").value
 
-        self.qi = zeros(shape=[5])
+        self.qi = zeros(shape=[6])
         self.ai = array([self.a_bottom,self.a_shoulder,self.a_elbow,self.a_wrist_rotating,self.a_wrist_deviating])
         self.pi = array([self.p_bottom,self.p_shoulder,self.p_elbow,self.p_wrist_rotating,self.p_wrist_deviating])
         self.Ri = zeros(shape=[5,3,3])
+        self.q_target = zeros(shape=[6])
         self.I = identity(3)
         self.pe = zeros(shape=[3])
 
         self.names = ["bottom_joint","shoulder_joint","elbow_joint","wrist_rotating_joint",
-                      "wrist_deviating_joint"]
-        self.idxs = []
+                      "wrist_deviating_joint","end_effector_joint"]
         
         self.dt = 0.01
         self.x_dot = zeros(shape=[6])
@@ -59,16 +60,20 @@ class ArmController(Node):
         self.vel_received = False
         self.joints_received = False
         self.log_iterator = 0
-        self.show_logs = self.get_parameter("show_logs").get_parameter_value().bool_value
+        self.show_logs = self.get_parameter("show_logs").get_parameter_value().bool_value    
+        self.point = JointTrajectoryPoint()
+        self.msg = JointTrajectory()
         self.timer = self.create_timer(self.dt, self.controlLoop)
 
     def controlLoop(self):
-        if not self.vel_received: return
+        if not self.vel_received or not self.joints_received: return
         p = zeros(shape=[3])
-        R = self.I
-        n = len(self.names)
-        world_axis = zeros(shape=self.ai.shape)
-        world_origins = zeros(shape=self.p.shape)
+        R = self.I.copy()
+        n = len(self.names)-1 
+        # End effector joint is not included in forward kinematics.
+        # Manual control of the joint is wanted.
+        world_axis = zeros((n,3))
+        world_origins = zeros((n,3))
         for i in range(n):
             world_axis[i] = R @ self.ai[i]
             world_origins[i] = p.copy()
@@ -86,21 +91,23 @@ class ArmController(Node):
             )
             self.jacobian[3:,i] = world_axis[i]
         q_dot = linalg.pinv(self.jacobian) @ self.x_dot
-        q_target += self.qi + q_dot * self.dt
+        q_dot = append(q_dot,self.end_effector_rot)
+        self.q_target[:5] += q_dot[:5] * self.dt
+        self.q_target[5] += q_dot[5] * self.dt
         if self.show_logs and self.log_iterator % 30 == 0:
             self.get_logger().info(f"x_dot: {self.x_dot}")
             self.get_logger().info(f"q_dot: {q_dot}")
             self.get_logger().info(f"\nCurrent jacobian: {self.jacobian}")
             self.get_logger().info(f"qi: {self.qi}")
-        point = JointTrajectoryPoint()
-        point.positions = q_target.tolist()
-        point.positions.append(self.end_effector_rot)
-        msg = JointTrajectory()
-        msg.joint_names = list(self.names)
-        msg.joint_names.append("end_effector_joint")
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.points = [point]
-        self.joint_pub_.publish(msg)
+            self.get_logger().info(f"q_target: {self.q_target}")
+        self.point.positions = self.q_target.tolist()
+        self.point.time_from_start = Duration(
+            seconds=0.05
+        ).to_msg()
+        self.msg.joint_names = list(self.names)
+        self.msg.header.stamp = self.get_clock().now().to_msg()
+        self.msg.points = [self.point]
+        self.joint_pub_.publish(self.msg)
         self.log_iterator += 1
 
     def jointCallback(self, msg:JointState):
@@ -110,7 +117,9 @@ class ArmController(Node):
             [positions[name] for name in self.names],
             dtype=float
         )
-        self.joint_received = True
+        if not self.joints_received:
+            self.q_target = self.qi.copy()
+        self.joints_received = True
                 
     def velCallback(self, msg:TwistStamped):
         msg.header.frame_id = "base_link"

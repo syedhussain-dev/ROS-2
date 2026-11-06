@@ -6,8 +6,26 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
+    arm_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
     claw_controller:
       type: parallel_gripper_action_controller/GripperActionController
+
+arm_trajectory_controller:
+  ros__parameters:
+    joints:
+      - bottom_joint
+      - shoulder_joint
+      - elbow_joint
+      - wrist_rotating_joint
+      - wrist_deviating_joint
+      - end_effector_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
 
 claw_controller:
   ros__parameters:
